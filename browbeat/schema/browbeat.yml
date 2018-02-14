@@ -191,4 +191,4 @@ mapping:
           type:
             type: str
             required: True
-            enum: ['perfkit', 'rally', 'shaker', 'yoda']
+            enum: ['perfkit', 'rally', 'rally-ovs', 'shaker', 'yoda']

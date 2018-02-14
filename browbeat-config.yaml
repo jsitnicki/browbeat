@@ -51,6 +51,7 @@ rally:
     - neutron: rally/rally-plugins/neutron
     - netcreate-boot: rally/rally-plugins/netcreate-boot
     - workloads: rally/rally-plugins/workloads
+    - rally-ovs: rally/ovs/scenarios
 shaker:
   server: 1.1.1.1
   port: 5555
@@ -279,3 +280,22 @@ workloads:
         elastic_host:
         elastic_port: 9200
         file: rally/rally-plugins/workloads/pbench-uperf.yml
+
+# Rally ovs
+  - name: plugin-workloads
+    enabled: false
+    type: rally-ovs
+    concurrency:
+      - 1
+    times: 1
+    scenarios:
+      - name: create_sandbox
+        enabled: true
+        file: create_sandbox.yml
+        farm_node:
+        batch: 1
+        amount: 1
+        tag: ToR1
+        network: eth1
+        start_cidr: 192.168.33.10/24
+        controller: ovn-controller-0
