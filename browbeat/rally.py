@@ -30,10 +30,12 @@ import tools
 
 class Rally(workloadbase.WorkloadBase):
 
-    def __init__(self, config, result_dir_ts):
+    def __init__(self, config, result_dir_ts, openstack=True):
         self.logger = logging.getLogger('browbeat.rally')
         self.config = config
         self.result_dir_ts = result_dir_ts
+        if not openstack:
+            self.openstack = False
         self.tools = tools.Tools(self.config)
         self.grafana = grafana.Grafana(self.config)
         self.elastic = elastic.Elastic(self.config, self.__class__.__name__.lower())
@@ -59,9 +61,14 @@ class Rally(workloadbase.WorkloadBase):
         plugin_string = ""
         if len(plugins) > 0:
             plugin_string = "--plugin-paths {}".format(",".join(plugins))
-        cmd = "source {}; ".format(get_workload_venv('rally', True))
-        cmd += "rally {} task start {} --task-args \'{}\' 2>&1 | tee {}.log".format(
-            plugin_string, task_file, task_args, test_name)
+        if self.openstack:
+            rally_exec = "rally"
+            cmd = "source {}; ".format(get_workload_venv('rally', True))
+        else:
+            rally_exec = "rally-ovs"
+            cmd = "source {}; ".format(get_workload_venv('rally-ovs', True))
+        cmd += "{} {} task start {} --task-args \'{}\' 2>&1 | tee {}.log".format(
+            rally_exec, plugin_string, task_file, task_args, test_name)
         from_time = time.time()
         self.tools.run_cmd(cmd)['stdout']
         to_time = time.time()
@@ -73,24 +80,34 @@ class Rally(workloadbase.WorkloadBase):
         return (from_time, to_time)
 
     def get_task_id(self, test_name):
+
         cmd = "grep \"rally task report [a-z0-9\-]* --out\" {}.log | awk '{{print $4}}'".format(
             test_name)
         return self.tools.run_cmd(cmd)['stdout']
 
     def gen_scenario_html(self, task_ids, test_name):
         all_task_ids = ' '.join(task_ids)
-        cmd = "source {}; ".format(get_workload_venv('rally', True))
+        if self.openstack:
+            cmd = "source {}; ".format(get_workload_venv('rally', True))
+        else:
+            cmd = "source {}; ".format(get_workload_venv('rally-ovs', True))
         cmd += "rally task report --task {} --out {}.html".format(
             all_task_ids, test_name)
         return self.tools.run_cmd(cmd)['stdout']
 
     def gen_scenario_json(self, task_id):
-        cmd = "source {}; ".format(get_workload_venv('rally', True))
+        if self.openstack:
+            cmd = "source {}; ".format(get_workload_venv('rally', True))
+        else:
+            cmd = "source {}; ".format(get_workload_venv('rally-ovs', True))
         cmd += "rally task results {}".format(task_id)
         return self.tools.run_cmd(cmd)['stdout']
 
     def gen_scenario_json_file(self, task_id, test_name):
-        cmd = "source {}; ".format(get_workload_venv('rally', True))
+        if self.openstack:
+            cmd = "source {}; ".format(get_workload_venv('rally', True))
+        else:
+            cmd = "source {}; ".format(get_workload_venv('rally-ovs', True))
         cmd += "rally task results {} > {}.json".format(task_id, test_name)
         return self.tools.run_cmd(cmd)['stdout']
 
