@@ -1,0 +1,84 @@
+{% set farm_node = farm_node %}
+{% set batch = batch or 1 %}
+{% set amount = amount or 1 %}
+{% set tag = tag or "all" %}
+{% set controller_cidr = controller_cidr %}
+{% set start_cidr = start_cidr %}
+{% set controller = controller %}
+{% set network = network %}
+
+---
+  version: 2
+  title: Create and bind ports using Rally runner for repeats
+  # XXX: We're still using tasks for creating/deleting sandboxes
+  subtasks:
+    -
+      title: Delete sandboxes
+      workloads:
+        -
+          name: OvnSandbox.delete_sandbox
+          args:
+            sandbox_delete_args:
+              farm: {{farm_node}}
+              graceful: True
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller}}
+    -
+      title: (Re)create controller sandbox
+      workloads:
+        -
+          name: OvnSandbox.create_controller
+          args:
+            controller_create_args:
+              controller_cidr: {{controller_cidr}}
+              net_dev: {{network}}
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller}}
+    -
+      title: Create sandboxes
+      workloads:
+        -
+          name: OvnSandbox.create_sandbox
+          args:
+            sandbox_create_args:
+              farm: {{farm_node}}
+              amount: {{amount}}
+              batch: {{batch}}
+              start_cidr: {{start_cidr}}
+              net_dev: {{network}}
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller}}
+
+    -
+      title: Create and bind ports
+      workloads:
+        -
+          name: OvnNetwork.create_and_bind_ports
+          args:
+            network_create_args: {}
+            port_create_args:
+              batch: 2
+            ports_per_network: 2
+            port_bind_args:
+              wait_up: True
+          runner:
+            type: "constant"
+            times: 100
+            concurrency: 2
+          context:
+            ovn_multihost:
+              controller: {{controller}}
+            sandbox:
+              tag: {{tag}}

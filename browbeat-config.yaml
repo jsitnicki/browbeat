@@ -74,7 +74,7 @@ workloads:
     openstack_volume_size: 1
 # Shaker
   - name: shaker-l2
-    enabled: true
+    enabled: false
     type: shaker
     density: 1
     compute: 1
@@ -82,7 +82,7 @@ workloads:
     time: 60
     file: lib/python2.7/site-packages/shaker/scenarios/openstack/dense_l2.yaml
   - name: shaker-l3-north-south
-    enabled: true
+    enabled: false
     type: shaker
     placement: double_room
     density: 1
@@ -91,7 +91,7 @@ workloads:
     time: 60
     file: lib/python2.7/site-packages/shaker/scenarios/openstack/dense_l3_north_south.yaml
   - name: shaker-l3-east-west
-    enabled: true
+    enabled: false
     type: shaker
     density: 1
     compute: 1
@@ -99,37 +99,37 @@ workloads:
     file: lib/python2.7/site-packages/shaker/scenarios/openstack/dense_l3_east_west.yaml
 # Rally
   - name: authenticate
-    enabled: true
+    enabled: false
     type: rally
     concurrency:
       - 8
     times: 100
     scenarios:
       - name: authentic-keystone
-        enabled: true
+        enabled: false
         file: rally/authenticate/keystone-cc.yml
       - name: authentic-neutron
-        enabled: true
+        enabled: false
         file: rally/authenticate/validate_neutron-cc.yml
       - name: authentic-nova
-        enabled: true
+        enabled: false
         file: rally/authenticate/validate_nova-cc.yml
 
   - name: cinder
-    enabled: true
+    enabled: false
     type: rally
     concurrency:
       - 2
     times: 10
     scenarios:
       - name: create-attach-volume-cirros
-        enabled: true
+        enabled: false
         image_name: cirros
         flavor_name: m1.tiny
         file: rally/cinder/cinder-create-and-attach-volume-cc.yml
 
   - name: keystonebasic
-    enabled: true
+    enabled: false
     type: rally
     concurrency:
       - 8
@@ -139,109 +139,109 @@ workloads:
         enabled: false
         file: rally/keystonebasic/create_and_list_tenants-cc.yml
       - name: create-and-list-users
-        enabled: true
+        enabled: false
         file: rally/keystonebasic/create_and_list_users-cc.yml
 
   - name: neutron
-    enabled: true
+    enabled: false
     type: rally
     concurrency:
       - 2
     times: 10
     scenarios:
       - name: create-list-network
-        enabled: true
+        enabled: false
         file: rally/neutron/neutron-create-list-network-cc.yml
       - name: create-list-port
-        enabled: true
+        enabled: false
         file: rally/neutron/neutron-create-list-port-cc.yml
       - name: create-list-router
-        enabled: true
+        enabled: false
         file: rally/neutron/neutron-create-list-router-cc.yml
       - name: create-list-security-group
-        enabled: true
+        enabled: false
         file: rally/neutron/neutron-create-list-security-group-cc.yml
       - name: create-list-subnet
-        enabled: true
+        enabled: false
         file: rally/neutron/neutron-create-list-subnet-cc.yml
 
   - name: nova
-    enabled: true
+    enabled: false
     type: rally
     concurrency:
       - 2
     times: 10
     scenarios:
       - name: boot-snapshot-delete-cirros
-        enabled: true
+        enabled: false
         file: rally/nova/nova-boot-snapshot-cc.yml
         image_name: cirros
         flavor_name: m1.xtiny
       - name: boot-list-cirros
-        enabled: true
+        enabled: false
         image_name: cirros
         file: rally/nova/nova-boot-list-cc.yml
         flavor_name: m1.xtiny
       - name: boot-show-cirros
-        enabled: true
+        enabled: false
         image_name: cirros
         file: rally/nova/nova-boot-show-cc.yml
         flavor_name: m1.xtiny
       - name: boot-bounce-delete-cirros
-        enabled: true
+        enabled: false
         image_name: cirros
         file: rally/nova/nova-boot-bounce-delete-cc.yml
         flavor_name: m1.xtiny
       - name: boot-lock-unlock-cirros
-        enabled: true
+        enabled: false
         image_name: cirros
         file: rally/nova/nova-lock-unlock-cc.yml
         flavor_name: m1.xtiny
 
   - name: glance
-    enabled: true
+    enabled: false
     type: rally
     concurrency:
       - 2
     times: 10
     scenarios:
       - name: create-and-delete-image
-        enabled: true
+        enabled: false
         image_location: /home/stack/cirros.qcow2
         container_format: bare
         disk_format: qcow2
         file: rally/glance/create-and-delete-image-cc.yml
 
   - name: simple-plugins
-    enabled: true
+    enabled: false
     type: rally
     concurrency:
       - 8
     times: 10
     scenarios:
       - name: netcreate-boot
-        enabled: true
+        enabled: false
         enable_dhcp: true
         image_name: cirros
         flavor_name: m1.tiny
         file: rally/rally-plugins/netcreate-boot/netcreate_nova_boot.yml
       - name: netcreate-boot-ping
-        enabled: true
+        enabled: false
         image_name: cirros
         flavor_name: m1.xtiny
         ext_net_id:
         file: rally/rally-plugins/netcreate-boot/netcreate_nova_boot_fip_ping.yml
       - name: router-subnet-create-delete
-        enabled: true
+        enabled: false
         num_networks:  5
         file: rally/rally-plugins/neutron/router_subnet_create_delete.yml
       - name: glance-create-boot-delete
-        enabled: true
+        enabled: false
         image_location: /home/stack/cirros.qcow2
         flavor_name: m1.xtiny
         file: rally/rally-plugins/glance/glance_create_boot_delete.yml
       - name: neutron-securitygroup-port
-        enabled: true
+        enabled: false
         file: rally/rally-plugins/neutron/securitygroup_port.yml
 
   - name: plugin-workloads
@@ -252,7 +252,7 @@ workloads:
     times: 1
     scenarios:
       - name: linpack
-        enabled: true
+        enabled: false
         image_name: browbeat-linpack
         flavor_name: m1.small
         external_network:
@@ -260,7 +260,7 @@ workloads:
         file: rally/rally-plugins/workloads/linpack.yml
 
       - name: browbeat-pbench-uperf
-        enabled: true
+        enabled: false
         user: root
         image_name: browbeat-uperf
         flavor_name: m1.small
@@ -283,14 +283,14 @@ workloads:
 
 # Rally ovs
   - name: plugin-workloads
-    enabled: false
+    enabled: true
     type: rally-ovs
     concurrency:
       - 1
     times: 1
     scenarios:
       - name: create_sandbox
-        enabled: true
+        enabled: false
         file: create_sandbox.yml
         farm_node:
         batch: 1
@@ -298,4 +298,15 @@ workloads:
         tag: ToR1
         network: eth1
         start_cidr: 192.168.33.10/24
-        controller: ovn-controller-0
+        controller: ovn-controller-node
+        farm_node: ovn-farm-node-0
+      - name: create-and-bind-ports
+        enabled: true
+        file: rally/ovs/scenarios/create-and-bind-ports.yaml
+        farm_node: ovn-farm-node-0
+        controller: ovn-controller-node
+        controller_cidr: 192.168.33.2/24
+        start_cidr: 192.168.33.10/24
+        batch: 10
+        amount: 10
+        network: eth1
