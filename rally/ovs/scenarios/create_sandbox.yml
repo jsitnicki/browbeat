@@ -1,0 +1,25 @@
+{% set farm_node = farm_node %}
+{% set batch = batch or 1 %}
+{% set amount = amount or 1 %}
+{% set tag = tag %}
+{% set start_cidr = start_cidr %}
+{% set controller = controller %}
+
+---
+OvnSandbox.create_sandbox:
+  -
+    args:
+      sandbox_create_args:
+        farm: {{farm_node}}
+        batch: {{batch}}
+        amount: {{amount}}
+        start_cidr: {{start_cidr}}
+        net_dev: {{network}}
+        tag: {{tag}}
+    runner:
+      concurrency: 1
+      times: 1
+      type: "constant"
+    context:
+      ovn_multihost:
+        controller: {{controller}}
