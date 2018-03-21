@@ -1,0 +1,66 @@
+{% set controller           = controller            or  {'node': 'ovn-controller-node', 'cidr': '172.16.0.1/16', 'net_dev': 'em1'}  %}
+
+---
+  version: 2
+  title: Cleanup sandboxes
+  subtasks:
+    -
+      title: Delete sandboxes
+      workloads:
+        -
+          name: OvnSandbox.delete_sandbox
+          args:
+            sandbox_delete_args:
+              farm: "ovn-farm-node-0"
+              graceful: true
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}
+    -
+      title: Delete sandboxes
+      workloads:
+        -
+          name: OvnSandbox.delete_sandbox
+          args:
+            sandbox_delete_args:
+              farm: "ovn-farm-node-1"
+              graceful: true
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}
+    -
+      title: Delete sandboxes
+      workloads:
+        -
+          name: OvnSandbox.delete_sandbox
+          args:
+            sandbox_delete_args:
+              farm: "ovn-farm-node-2"
+              graceful: true
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}
+    -
+      title: (Re)create controller sandbox
+      workloads:
+        -
+          name: OvnSandbox.create_controller
+          args:
+            controller_create_args:
+              controller_cidr: {{controller['cidr']}}
+              net_dev: {{controller['net_dev']}}
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}

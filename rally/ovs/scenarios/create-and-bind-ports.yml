@@ -1,0 +1,86 @@
+{% set controller           = controller            or  {'node': 'ovn-controller-node', 'cidr': '172.16.0.1/16', 'net_dev': 'em1'}  %}
+{% set farms                = farms                 or [{'node': 'ovn-farm-node-0',     'cidr': '172.16.1.1/16', 'net_dev': 'em1'}] %}
+{% set network_start_cidr   = network_start_cidr    or "10.0.0.0/8" %}
+{% set sandboxes_per_farm   = sandboxes_per_farm    or 1 %}
+{% set ports_per_network    = ports_per_network     or 1 %}
+{% set networks_per_cluster = networks_per_cluster  or 1 %}
+{% set concurrency          = concurrency           or 1 %}
+
+---
+  version: 2
+  title: Create and bind ports using Rally runner for repeats
+  subtasks:
+{% for farm in farms %}
+    -
+      title: Delete sandboxes on {{farm['node']}}
+      workloads:
+        -
+          name: OvnSandbox.delete_sandbox
+          args:
+            # All sandboxes on all farms
+            sandbox_delete_args:
+              farm: {{farm['node']}}
+              graceful: false
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}
+{% endfor %}
+    -
+      title: (Re)create controller sandbox
+      workloads:
+        -
+          name: OvnSandbox.create_controller
+          args:
+            controller_create_args:
+              controller_cidr: {{controller['cidr']}}
+              net_dev: {{controller['net_dev']}}
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}
+{% for farm in farms %}
+    -
+      title: Create {{sandboxes_per_farm}} sandboxes on {{farm['node']}}
+      workloads:
+        -
+          name: OvnSandbox.create_sandbox
+          args:
+            sandbox_create_args:
+              farm: {{farm['node']}}
+              amount: {{sandboxes_per_farm}}
+              batch: {{sandboxes_per_farm}}
+              start_cidr: {{farm['cidr']}}
+              net_dev: {{farm['net_dev']}}
+          runner:
+            type: "serial"
+            times: 1
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}
+{% endfor %}
+    -
+      title: Create and bind ports
+      workloads:
+        -
+          name: OvnNetwork.create_and_bind_ports
+          args:
+            network_create_args: 
+              start_cidr: {{network_start_cidr}}
+            port_create_args:
+              batch: {{ports_per_network}}
+            ports_per_network: {{ports_per_network}}
+            port_bind_args:
+              wait_up: True
+          runner:
+            type: "constant"
+            times: {{networks_per_cluster}}
+            concurrency: {{concurrency}}
+          context:
+            ovn_multihost:
+              controller: {{controller['node']}}
+            sandbox: {}
