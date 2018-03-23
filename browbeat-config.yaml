@@ -318,7 +318,7 @@ workloads:
             cidr: "172.16.3.1/16"
             net_dev: "em1"
         sandboxes_per_farm: 24
-        networks_per_cluster: 180
+        networks_per_cluster: 1440
         ports_per_network: 2
         network_start_cidr: "10.0.0.0/8"
         concurrency:

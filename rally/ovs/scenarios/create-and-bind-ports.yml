@@ -75,6 +75,7 @@
               batch: {{ports_per_network}}
             ports_per_network: {{ports_per_network}}
             port_bind_args:
+              wait_sync: "sb"
               wait_up: True
           runner:
             type: "constant"
